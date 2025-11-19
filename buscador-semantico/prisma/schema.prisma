@@ -7,41 +7,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// --------------------------------------------------
-// 1. Documento OWL subido (el archivo físico)
-// --------------------------------------------------
-model OwlDocument {
-  id           Int      @id @default(autoincrement())
-  fileName     String   // nombre con el que se guarda en /uploads
-  originalName String?  // nombre original que subió el usuario
-  mimeType     String?  @default("application/rdf+xml")
-  size         BigInt?
-  uploadedAt   DateTime @default(now())
-  parsedAt     DateTime?
-  tripleCount  Int      @default(0)
-  hasError     Boolean  @default(false)
-  errorMessage String?
+model Document {
+  id         Int      @id @default(autoincrement())
+  nombre     String
+  publicId   String   @unique
+  url        String
+  size       BigInt?
+  mimeType   String?
+  uploadedAt DateTime @default(now())
 
-  triples Triple[]
+  @@map("documents")
+}
+
+model OwlDocument {
+  id           Int       @id @default(autoincrement())
+  fileName     String
+  originalName String?
+  mimeType     String?   @default("application/rdf+xml")
+  size         BigInt?
+  uploadedAt   DateTime  @default(now())
+  parsedAt     DateTime?
+  tripleCount  Int       @default(0)
+  hasError     Boolean   @default(false)
+  errorMessage String?
+  triples      Triple[]
 
   @@map("owl_documents")
 }
 
-// --------------------------------------------------
-// 2. Triplas RDF (modelo universal, vale para cualquier OWL/RDF)
-// --------------------------------------------------
 model Triple {
   id         Int         @id @default(autoincrement())
   documentId Int
-  document   OwlDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-
-  graph      String?     // named graph / IRI de la ontología (útil cuando cargas varias)
+  graph      String?
   subject    String
   predicate  String
   object     String
   isLiteral  Boolean     @default(false)
-  datatype   String?     // xsd:string, xsd:dateTime, etc.
-  lang       String?     // es, en, fr...
+  datatype   String?
+  lang       String?
+  inferredBy String?
+  isInferred Boolean     @default(false)
+  document   OwlDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
   @@index([subject])
@@ -50,6 +56,6 @@ model Triple {
   @@index([subject, predicate])
   @@index([predicate, object])
   @@index([graph])
-
+  @@index([isInferred])
   @@map("triples")
 }
