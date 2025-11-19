@@ -7,9 +7,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  createdAt DateTime @default(now())
+// --------------------------------------------------
+// 1. Documento OWL subido (el archivo físico)
+// --------------------------------------------------
+model OwlDocument {
+  id           Int      @id @default(autoincrement())
+  fileName     String   // nombre con el que se guarda en /uploads
+  originalName String?  // nombre original que subió el usuario
+  mimeType     String?  @default("application/rdf+xml")
+  size         BigInt?
+  uploadedAt   DateTime @default(now())
+  parsedAt     DateTime?
+  tripleCount  Int      @default(0)
+  hasError     Boolean  @default(false)
+  errorMessage String?
+
+  triples Triple[]
+
+  @@map("owl_documents")
+}
+
+// --------------------------------------------------
+// 2. Triplas RDF (modelo universal, vale para cualquier OWL/RDF)
+// --------------------------------------------------
+model Triple {
+  id         Int         @id @default(autoincrement())
+  documentId Int
+  document   OwlDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  graph      String?     // named graph / IRI de la ontología (útil cuando cargas varias)
+  subject    String
+  predicate  String
+  object     String
+  isLiteral  Boolean     @default(false)
+  datatype   String?     // xsd:string, xsd:dateTime, etc.
+  lang       String?     // es, en, fr...
+
+  @@index([documentId])
+  @@index([subject])
+  @@index([predicate])
+  @@index([object])
+  @@index([subject, predicate])
+  @@index([predicate, object])
+  @@index([graph])
+
+  @@map("triples")
 }

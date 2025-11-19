@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:ex="http://example.org/ontology#">
+
+  <!-- Ontología -->
+  <owl:Ontology rdf:about="http://example.org/ontology">
+    <rdfs:label xml:lang="es">Ontología de Ejemplo</rdfs:label>
+    <rdfs:comment xml:lang="es">Una ontología simple para probar el buscador semántico</rdfs:comment>
+  </owl:Ontology>
+
+  <!-- Clases -->
+  <owl:Class rdf:about="http://example.org/ontology#Persona">
+    <rdfs:label xml:lang="es">Persona</rdfs:label>
+    <rdfs:comment xml:lang="es">Representa a una persona</rdfs:comment>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://example.org/ontology#Empleado">
+    <rdfs:label xml:lang="es">Empleado</rdfs:label>
+    <rdfs:comment xml:lang="es">Persona que trabaja en una organización</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://example.org/ontology#Persona"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://example.org/ontology#Organizacion">
+    <rdfs:label xml:lang="es">Organización</rdfs:label>
+    <rdfs:comment xml:lang="es">Una entidad organizacional</rdfs:comment>
+  </owl:Class>
+
+  <!-- Propiedades -->
+  <owl:ObjectProperty rdf:about="http://example.org/ontology#trabajaEn">
+    <rdfs:label xml:lang="es">trabaja en</rdfs:label>
+    <rdfs:domain rdf:resource="http://example.org/ontology#Empleado"/>
+    <rdfs:range rdf:resource="http://example.org/ontology#Organizacion"/>
+  </owl:ObjectProperty>
+
+  <owl:DatatypeProperty rdf:about="http://example.org/ontology#nombre">
+    <rdfs:label xml:lang="es">nombre</rdfs:label>
+    <rdfs:domain rdf:resource="http://example.org/ontology#Persona"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="http://example.org/ontology#edad">
+    <rdfs:label xml:lang="es">edad</rdfs:label>
+    <rdfs:domain rdf:resource="http://example.org/ontology#Persona"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </owl:DatatypeProperty>
+
+  <!-- Individuos -->
+  <ex:Empleado rdf:about="http://example.org/ontology#Juan">
+    <ex:nombre>Juan Pérez</ex:nombre>
+    <ex:edad rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</ex:edad>
+    <ex:trabajaEn rdf:resource="http://example.org/ontology#TechCorp"/>
+  </ex:Empleado>
+
+  <ex:Organizacion rdf:about="http://example.org/ontology#TechCorp">
+    <ex:nombre>TechCorp SA</ex:nombre>
+  </ex:Organizacion>
+
+</rdf:RDF>
