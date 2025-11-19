@@ -71,6 +71,7 @@ export class UploadResponseDto {
         classCount: number;
         propertyCount: number;
         individualCount: number;
+        inferredTriples?: number;
     };
 
     @ApiProperty({ description: 'Mensaje de éxito' })

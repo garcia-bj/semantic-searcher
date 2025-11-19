@@ -6,10 +6,15 @@ import { owlConfig } from '../../config/owl.config';
 import { loadOWLFromBuffer } from '../../core/ontology/parsers/owl-loader';
 import { parseOWL } from '../../core/ontology/parsers/owl-parser';
 import { OwlInfoDto, OntologyStatsDto, UploadResponseDto } from './dto/owl-info.dto';
+import { ReasonerService } from '../../core/ontology/reasoner/reasoner.service';
+import { reasonerConfig } from '../../config/reasoner.config';
 
 @Injectable()
 export class OwlService {
-    constructor(private prisma: PrismaService) {
+    constructor(
+        private prisma: PrismaService,
+        private reasoner: ReasonerService,
+    ) {
         // Asegurar que el directorio de uploads existe
         this.ensureUploadDir();
     }
@@ -101,6 +106,20 @@ export class OwlService {
                     },
                 });
 
+                // Aplicar razonamiento semántico si está habilitado
+                let reasoningStats: any = null;
+                if (reasonerConfig.autoReason) {
+                    try {
+                        reasoningStats = await this.reasoner.applyReasoning(
+                            document.id,
+                            reasonerConfig.defaultReasoningLevel,
+                        );
+                    } catch (reasonError) {
+                        // Log error but don't fail the upload
+                        console.error('Reasoning failed:', reasonError);
+                    }
+                }
+
                 return {
                     document: this.mapToOwlInfoDto(updatedDocument),
                     stats: {
@@ -108,8 +127,11 @@ export class OwlService {
                         classCount: parseResult.metadata.classes.size,
                         propertyCount: parseResult.metadata.properties.size,
                         individualCount: parseResult.metadata.individuals.size,
+                        inferredTriples: reasoningStats?.totalInferredTriples || 0,
                     },
-                    message: 'OWL file uploaded and parsed successfully',
+                    message: reasoningStats
+                        ? `OWL file uploaded, parsed and reasoned successfully (${reasoningStats.totalInferredTriples} inferences)`
+                        : 'OWL file uploaded and parsed successfully',
                 };
             } catch (parseError) {
                 // Actualizar documento con error
