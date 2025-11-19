@@ -7,6 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Document {
+  id         Int      @id @default(autoincrement())
+  nombre     String
+  publicId   String   @unique
+  url        String
+  size       BigInt?
+  mimeType   String?
+  uploadedAt DateTime @default(now())
+
+  @@map("documents")
+}
+
 model OwlDocument {
   id           Int       @id @default(autoincrement())
   fileName     String
@@ -46,14 +58,4 @@ model Triple {
   @@index([graph])
   @@index([isInferred])
   @@map("triples")
-}
-
-model documents {
-  id         Int      @id @default(autoincrement())
-  nombre     String
-  publicId   String   @unique
-  url        String
-  size       BigInt?
-  mimeType   String?
-  uploadedAt DateTime @default(now())
 }
